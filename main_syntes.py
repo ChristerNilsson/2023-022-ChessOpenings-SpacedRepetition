@@ -6,6 +6,8 @@ from os import scandir
 # Läser ett antal pgn-filer, som kan innehålla flera partier.
 # Uppdaterar tree.json med antal partier
 
+CUTOFF = 5 # min antal partier för att spara ett drag
+
 board = None
 
 def propagate(tree):
@@ -78,7 +80,7 @@ board = chess.Board()
 #readPGN('lichess_elite_2019-06') #  65.0 MB  76808  767  10.4  16.0  341           22536                  29
 #readPGN('lichess_elite_2019-11') # 137.0 MB 163429 1580  14.4  18.7  694           45868                  29
 #readPGN('lichess_elite_2020-01') # 206.0 MB 248213 1965  16.7  95.5 1037           68756                  35 # prune killed 99.6% of the nodes
-#readPGN('lichess_elite_2020-05') # 313.0 MB 369771 3033  23.8  78.3 1591 26270541 105197    404    51     35 # prune killed 99.6%
+#readPGN('lichess_elite_2020-05') # 313.0 MB 369771 3033  23.8  78.3 1591 26270541 105197    404    51     35 # zippat 255kB
 #readPGN('lichess_elite_2020-04') # 356.0 MB 423017 3281  28.1  97.6 1795          118744                  36 # prune killed 99.6%
 
 # totalt 3.05 GB cirka 18MB 10h
@@ -86,7 +88,7 @@ board = chess.Board()
 cpu('propagate',lambda : propagate(tree))
 cpu('countNodes before', lambda : countNodes(tree))
 cpu('maxDepth before', lambda : maxDepth(tree))
-cpu('prune',lambda : prune(tree,5))
+cpu('prune',lambda : prune(tree,CUTOFF))
 cpu('maxDepth after', lambda : maxDepth(tree))
 cpu('countNodes after', lambda : countNodes(tree))
 cpu('save',lambda : save(tree))

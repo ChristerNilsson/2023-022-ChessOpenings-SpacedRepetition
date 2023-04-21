@@ -154,10 +154,10 @@ export class Board
 		res = lerp 0, 4*SIZE, d/LIMIT
 		if "-" in score then res = -res
 		param.Integer Math.round res
-	ass 4*SIZE,calcBar "2100"
-	ass 4*SIZE,calcBar "2000"
-	ass 2*SIZE,calcBar "1000"
-	ass SIZE,calcBar "500"
-	ass 0,calcBar "1"
-	ass -SIZE,calcBar "-500"
-	ass -4*SIZE,calcBar "#-1"
+	# ass 4*SIZE,calcBar "2100"
+	# ass 4*SIZE,calcBar "2000"
+	# ass 2*SIZE,calcBar "1000"
+	# ass SIZE,calcBar "500"
+	# ass 0,calcBar "1"
+	# ass -SIZE,calcBar "-500"
+	# ass -4*SIZE,calcBar "#-1"
