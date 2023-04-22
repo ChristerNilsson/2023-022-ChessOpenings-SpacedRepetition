@@ -97,3 +97,11 @@ Låda 4:
 
 Utför det vanligaste draget!
 (tryck på mellanslag för facit)
+
+# Prestanda
+
+Att välja nästa drag med utgångspunkt av nuvarade val,
+kan troligen snabbas upp.
+Just nu hämtas en nivå i trädet och detta kräver att hela subträdet traverseras.
+Dessa pather bör eventueelt cachas. Antingen i nuvarande session eller sparas i localStorage.
+Kan handla om tiotusentals 'e2e4.e7e5.g1f3...'-drag i en lista.
