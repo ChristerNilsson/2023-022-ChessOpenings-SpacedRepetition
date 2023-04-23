@@ -4,12 +4,13 @@ import chess.pgn
 from os import scandir
 
 # Läser ett antal pgn-filer, som kan innehålla flera partier.
-# Uppdaterar tree.json med antal partier
+# Skapar tree.json med antal partier
+# Skapar arr.json med antal level, partier samt parent
 
 CUTOFF = 5 # min antal partier för att spara ett drag
-ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_'
 
 board = None
+filename = ""
 
 def propagate(tree):
 	for key in tree:
@@ -50,9 +51,11 @@ def traversePGN(node,t,level=0):
 		traversePGN(variation,t[key],level+1)
 		board.pop()
 
-def readPGN(filename):
+def readPGN(namn):
+	global filename
+	filename = namn
 	start = time.time()
-	pgn = open('original/' + filename + '.pgn')
+	pgn = open('original/lichess_elite_' + filename + '.pgn')
 	for i in range(1000000):
 		game = chess.pgn.read_game(pgn)
 		if game == None: break
@@ -66,17 +69,17 @@ def cpu (prompt,f) :
 	start = time.time()
 	print(prompt, f(),round(time.time() - start, 3), 's')
 
-def code6464(square):
-	row = 'abcdefgh'.index(square[0])
-	col = '12345678'.index(square[1])
-	return ALFABET[8*row+col]
-def code64(level): return ALFABET[level]
-
-def triple(arr):
-	res = ""
-	for uci,level in arr:
-		res += code6464(uci[0:2]) + code6464(uci[2:4]) + code64(level)
-	return res
+# ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_'
+# def code6464(square):
+# 	row = 'abcdefgh'.index(square[0])
+# 	col = '12345678'.index(square[1])
+# 	return ALFABET[8*row+col]
+# def code64(level): return ALFABET[level]
+# def triple(arr):
+# 	res = ""
+# 	for uci,level in arr:
+# 		res += code6464(uci[0:2]) + code6464(uci[2:4]) + code64(level)
+# 	return res
 
 def linearize(tree,arr=[],level=0):
 	for key in tree:
@@ -97,45 +100,26 @@ def add_p(linear):
 			res.append([uci, level, index[level - 1], n])
 	return res
 
-# def add_n(arr):
-# 	res = []
-# 	count = [0] * 64
-# 	N = len(arr)
-# 	for i in range(N):
-# 		j = N-i-1
-# 		uci, level = arr[j]
-# 		if j < len(arr)-1:
-# 			if level < arr[j+1][1] :
-# 				count[level] += count[level+1]
-# 				count[level+1] = 1
-# 			else:
-# 				count[level] = 0
-# 		else:
-# 			count[level] = 1
-# 		res.append([uci, level, count[level]])
-# 	return list(reversed(res))
-
 def save(tree):
-	with open("data/tree1.json", "w") as f: f.write(json.dumps(tree).replace(" ", ""))
 	linear = linearize(tree)
 	parent = add_p(linear)
-	# antal = add_n(linear)
-	with open("data/arr.json",   "w") as f: f.write(json.dumps(parent).replace('], ["', '],\n["').replace(' ',''))
+	with open("data/tree-" + filename + ".json", "w") as f: f.write(json.dumps(tree).replace(" ", ""))
+	with open("data/arr-"  + filename + ".json", "w") as f: f.write(json.dumps({'arr':parent}).replace('], ["', '],\n["').replace(' ',''))
 
 # with open("data/tree.json", "r") as f: tree = json.load(f)
 tree = {'n':0}
 
 print()
 board = chess.Board()
-#                                                   === sekunder ===   kB    nodes  nodes  depth depth
-#                                    pgnSize  games read  prop prune tree   before  after before after nodes/s
-#readPGN('lichess_elite_2014-08') #   0.1 MB    137    1   0.0   0.0    1    10737     62    298    20
-readPGN('lichess_elite_2016-02') #  10.0 MB  13149  107   1.1   1.4   60   914356   3918    256    28     36
-#readPGN('lichess_elite_2019-06') #  65.0 MB  76808  767  10.4  16.0  341           22536                  29
-#readPGN('lichess_elite_2019-11') # 137.0 MB 163429 1580  14.4  18.7  694           45868                  29
-#readPGN('lichess_elite_2020-01') # 206.0 MB 248213 1965  16.7  95.5 1037           68756                  35 # prune killed 99.6% of the nodes
-#readPGN('lichess_elite_2020-05') # 313.0 MB 369771 3033  23.8  78.3 1591 26270541 105197    404    51     35 # zippat 255kB
-#readPGN('lichess_elite_2020-04') # 356.0 MB 423017 3281  28.1  97.6 1795          118744                  36 # prune killed 99.6%
+#                                     === sekunder ===   kB    nodes  nodes  depth depth         nodes
+#                      pgnSize  games read  prop prune tree   before  after before after nodes/s /game
+readPGN('2014-08') #   0.1 MB    137    1   0.0   0.0    1    10737     62    298    20         0.45
+#readPGN('2016-02') #  10.0 MB  13149  107   1.1   1.4   60   914356   3918    256    28     36  0.30
+#readPGN('2019-06') #  65.0 MB  76808  767  10.4  16.0  341           22536                  29
+#readPGN('2019-11') # 137.0 MB 163429 1580  14.4  18.7  694           45868                  29
+#readPGN('2020-01') # 206.0 MB 248213 1965  16.7  95.5 1037           68756                  35  0.28 # prune(5) killed 99.6% of the nodes
+#readPGN('2020-05') # 313.0 MB 369771 3033  23.8  78.3 1591 26270541 105197                  35       # zippat 255kB
+#readPGN('2020-04') # 356.0 MB 423017 3281  28.1 105.9 1795 29772962 118744    434    43     36  0.28 # prune(5) killed 99.6%
 
 # totalt 3.05 GB cirka 18MB 10h
 

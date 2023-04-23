@@ -1,15 +1,19 @@
 import json
 import time
 
-SMALL = False
-if SMALL:
-	FILE = "data/tree_62.json"
-else:
-	FILE = "data/tree_2020-04.json"
+# arr innehåller [uci, level, parent, n]
+# ["e2e4",0,-1,112345]
 
-with open(FILE, "r") as f: tree = json.load(f)
+SIZE = 0
 
-paths = [] # [['e2e4',-1],['e7e5',0]]
+if SIZE == 0: FILE = "data/arr-2014-08.json"
+if SIZE == 1: FILE = "data/arr-2016-02.json"
+if SIZE == 2: FILE = "data/arr-2019-06.json"
+
+start = time.time()
+with open(FILE, "r") as f:
+	arr = json.load(f)['arr']
+print('load',time.time() - start)
 
 def ass (a,b):
 	if a == b: return
@@ -17,88 +21,89 @@ def ass (a,b):
 	print(' ',a)
 	print(' ',b)
 
-# Kan eventuellt skapas redan vid inläsning av pgn-filerna
-def setPath(tree,index):
-	for key in tree:
-		if len(key) == 1: continue
-		n = len(paths)
-		paths.append([key,index])
-		tree[key]['p'] = n
-		setPath(tree[key], n)
-start = time.time()
-setPath(tree,-1)
-print('setPath',len(paths),time.time() - start)
-
 def getPath(i):
 	res = []
 	while i >= 0:
-		res.append(paths[i][0])
-		i = paths[i][1]
+		res.append(arr[i][0])
+		i = arr[i][2]
 	return '.'.join(reversed(res))
-if SMALL:
+start = time.time()
+if SIZE == 0:
 	ass("d2d4",getPath(0))
 	ass("d2d4.g8f6",getPath(1))
 	ass("g2g3.d7d5.f1g2",getPath(60))
-else:
-	ass("e2e4", getPath(0))
-	ass("e2e4.c7c5", getPath(1))
-	ass("b1a3.e7e5", getPath(len(paths)-1))
-z=99
+if SIZE == 1:
+	ass("d2d4", getPath(0))
+	ass("d2d4.d7d5", getPath(1))
+	ass("e2e4.e7e5.g1f3.b8c6.f1c4", getPath(2557))
+	ass("e2e4.e7e5.g1f3.b8c6.f1c4.f8c5.b2b4.c5b4.c2c3.b4e7.d2d4.c6a5", getPath(2611))
+	ass("e2e4.e7e5.g1f3.b8c6.d2d4", getPath(2612))
+	ass("c2c3", getPath(len(arr)-1))
+if SIZE == 2:
+	ass("e2e4.c7c5.g1f3.e7e6.d2d4.c5d4.f3d4.a7a6.f1d3.d8c7.e1g1.b8c6.d4c6.d7c6.b1d2", getPath(100))
+	ass("e2e4.d7d5.e4d5.g8f6.g1f3.f6d5", getPath(10000))
+print('getPath',time.time() - start)
 
-def getBF_All (node,all): # BreadthFirst, complete tree sorted by n.
-	for key in node:
-		if len(key) == 1: continue
-		nk = node[key]
-		all.append([nk['n'],nk['p']])
-		getBF_All(nk,all)
-start = time.time()
-all = []
-getBF_All(tree,all)
-all.sort(reverse=True, key=lambda item: item[0])
-for i in range(10):
-	print(all[i][0],getPath(all[i][1]))
-print('getBF_All',len(all),time.time() - start)
-
-def getNode(tree,path):
-	node = tree
-	for key in path:
-		if key != 'root': node = node[key]
-	return node
-if SMALL:
-	ass(tree, getNode(tree,[]))
-	ass(tree['d2d4'], getNode(tree,['d2d4']))
-	ass(tree['e2e4']['e7e5'], getNode(tree,['e2e4','e7e5']))
-
-def getCard(i): # Hämta i popularitetsordning
-	if i >= len(all): return ""
-	return getPath(all[i][1])
-
-if SMALL:
-	ass("e2e4", getCard(0))
-	ass("g2g3", getCard(1))
-	ass("d2d4", getCard(2))
-	ass("g1f3", getCard(3))
-	ass("d2d4.g8f6", getCard(4))
-	ass("e2e4.c7c5", getCard(5))
-	ass("g1f3.g7g6.d2d4.f8g7.c2c4.d7d6.b1c3.b8d7.e2e4.c7c6.f1e2", getCard(-1))
-	ass("", getCard(len(all)))
-else:
-	ass("e2e4", getCard(0))
-	ass("d2d4", getCard(1))
-	ass("d2d4.g8f6", getCard(2))
-	ass("e2e4.c7c5", getCard(3))
-	ass("e2e4.c7c5.g1f3", getCard(4))
-	ass("g1f3", getCard(5))
-
-def facit(path):
+def getStart (path):
 	keys = path.split('.')
-	node = getNode(tree,keys)
-	keys = node.keys()
-	arr = [[node[key]['n'],key] for key in keys if len(key)!=1]
-	arr.sort(reverse=True)
-	return arr
-if SMALL:
-	pass
-else:
-	ass(facit('e2e4.e7e5.g1f3.b8c6.f1c4'), [[3066, 'g8f6'], [2984, 'f8c5'], [203, 'f8e7'], [60, 'd7d6'], [36, 'a7a6'], [32, 'g7g6'], [31, 'c6d4'], [13, 'f7f5'], [11, 'h7h6'], [7, 'g8e7']])
-	ass(facit('e2e4'),[[75916, 'c7c5'], [36195, 'e7e5'], [22688, 'e7e6'], [19176, 'c7c6'], [10628, 'd7d6'], [8267, 'd7d5'], [7232, 'g7g6'], [6407, 'g8f6'], [3200, 'b8c6'], [1130, 'b7b6'], [311, 'a7a6'], [113, 'f7f6'], [90, 'b8a6'], [90, 'a7a5'], [87, 'h7h5'], [56, 'f7f5'], [35, 'g8h6'], [26, 'h7h6'], [22, 'g7g5'], [15, 'b7b5']])
+	j = 0
+	for i in range(len(keys)):
+		key = keys[i]
+		while arr[j][0] != key or arr[j][1] != i:
+			j += 1
+			if j>=len(arr): return -1
+	return j
+start = time.time()
+if SIZE == 0:
+	ass(22,getStart("e2e4"))
+	ass(32,getStart("e2e4.e7e5"))
+	ass(-1,getStart("e2e4.e7e5.g1f3.b8c6.f1c4"))
+if SIZE == 1: ass(2557,getStart("e2e4.e7e5.g1f3.b8c6.f1c4"))
+if SIZE == 2: ass(4585, getStart("e2e4.e7e5.g1f3.b8c6.f1c4"))
+print('getStart',time.time() - start)
+
+def getStopp (path,index):
+	keys = path.split('.')
+	j = index + 1
+	while arr[j][1] >= len(keys): j += 1
+	return j
+start = time.time()
+if SIZE == 0:
+	ass(42,getStopp("e2e4",22))
+	ass(34,getStopp("e2e4.e7e5",32))
+if SIZE == 1: ass(2612,getStopp("e2e4.e7e5.g1f3.b8c6.f1c4",2557))
+if SIZE == 2: ass(4900,getStopp("e2e4.e7e5.g1f3.b8c6.f1c4",4585))
+print('getStopp',time.time() - start)
+
+def getQuestions(start,stopp):
+	res = [[arr[i],getPath(i)] for i in range(start,stopp)]
+	res.sort(key = lambda item:[item[0][3],item[1]])
+	return list(reversed(res))
+start = time.time()
+if SIZE == 0:
+	questions = getQuestions(32,34)
+	ass([['e7e5', 1, 22, 9], 'e2e4.e7e5'],questions[0])
+	ass([['g1f3', 2, 32, 6], 'e2e4.e7e5.g1f3'],questions[-1])
+if SIZE == 1:
+	questions = getQuestions(2557,2612)
+	ass([['f1c4', 4, 2419, 134], 'e2e4.e7e5.g1f3.b8c6.f1c4'],questions[0])
+	ass([['b4a5', 9, 2607, 5], 'e2e4.e7e5.g1f3.b8c6.f1c4.f8c5.b2b4.c5b4.c2c3.b4a5'],questions[-1])
+if SIZE == 2:
+	questions = getQuestions(4585,4900)
+	ass([['f1c4', 4, 4012, 1036], 'e2e4.e7e5.g1f3.b8c6.f1c4'],questions[0])
+	ass([['a7a6', 5, 4585, 5], 'e2e4.e7e5.g1f3.b8c6.f1c4.a7a6'],questions[-1])
+print('getQuestions',time.time() - start)
+
+# sök igenom hela arr[start:stopp] efter alla rader med rätt level och sortera
+def facit(arr,i,stopp):
+	level = arr[i][1]
+	res = [item for item in arr[i:stopp] if item[1] == level+1] # borde man inte kolla att man inte hamnar utanför trädet?
+	res.sort(key = lambda item: -item[3])
+	return res
+start = time.time()
+if SIZE == 0:
+	ass(facit(arr,22,42), [['c7c5', 1, 22, 14], ['g7g6', 1, 22, 13], ['d7d5', 1, 22, 9], ['e7e5', 1, 22, 9], ['c7c6', 1, 22, 6]])
+	ass(facit(arr,32,34), [['g1f3', 2, 32, 6]])
+if SIZE == 1: ass(facit(arr,2557,2612), [['g8f6', 5, 2557, 60], ['f8c5', 5, 2557, 60]])
+if SIZE == 2: ass(facit(arr,4585,4900), [['g8f6', 5, 4585, 529], ['f8c5', 5, 4585, 454], ['f8e7', 5, 4585, 19], ['g7g6', 5, 4585, 12], ['f7f5', 5, 4585, 8], ['d7d6', 5, 4585, 8], ['a7a6', 5, 4585, 5]])
+print('facit',time.time() - start)

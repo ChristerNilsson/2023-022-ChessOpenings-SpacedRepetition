@@ -5,6 +5,7 @@ import {Square} from '../js/square.js'
 import {Button} from '../js/button.js'
 import {coords,clickString,global,loadTree,toObjectNotation,toUCI} from '../js/globals.js'
 import {dumpState} from '../js/globals.js'
+#import {test} from '../js/tree.js'
 
 SIZE = global.SIZE
 
@@ -24,8 +25,8 @@ export class Board
 		x3 = 7.5
 		@buttons.push new Button x0*SIZE, 9.5*SIZE, 'undo', => clickString 'undo'
 		@buttons.push new Button x1*SIZE, 9.5*SIZE, 'flip', => clickString 'flip'
-		@buttons.push new Button x2*SIZE, 9.5*SIZE, 'link', => clickString 'link'
-		@buttons.push new Button x3*SIZE, 9.5*SIZE, 'save', => clickString 'save'
+		@buttons.push new Button x2*SIZE, 9.5*SIZE, 'link',  =>
+		@buttons.push new Button x3*SIZE, 9.5*SIZE, 'debug', =>
 
 	click : (i) =>
 		col = i %% 8

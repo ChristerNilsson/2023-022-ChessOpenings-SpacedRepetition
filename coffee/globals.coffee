@@ -4,10 +4,13 @@ import _ from 'https://cdn.skypack.dev/lodash'
 import cryptoJs from 'https://cdn.skypack.dev/crypto-js'
 import {download} from '../js/download.js'
 
+# export readArr = (filename) => global.arr = (loadJSON filename).arr
+
 export global = {
 
 	#name : 'bishop',
 	name : 'tree',
+	arr : [],
 
 	version:'ver: B',
 	board:null,
