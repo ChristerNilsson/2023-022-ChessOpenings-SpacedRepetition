@@ -1,20 +1,10 @@
-# Anki har fem boxar.
-# Den första innehåller de nyaste uppgifterna.
-# När man svarat rätt, flyttas kortet till nästa box.
-# Efter femte boxen, tas kortet bort.
-# När man svarar fel, flyttas kortet tillbaka till första boxen.
-# Korten i varje box ligger i en kö.
-# Varje låda har ett maxantal. Default: [5,10,20,40,80]
-# Korten i högsta lådan ligger därmed längst i tid räknat.
-
 import _ from 'https://cdn.skypack.dev/lodash'
 import {ass,log,range} from '../js/utils.js'
+import {global} from '../js/globals.js'
 
 export class SpacedRepetition
 
 	constructor : () ->
-		# @root = ""
-		# @latest = ""
 		@maximum = [5,10,20,40,80]
 		@boxes = _.map @maximum, (item) -> []
 		@currIndex = -1
@@ -25,21 +15,21 @@ export class SpacedRepetition
 	# Om ingen box är överfull, hämtas från första box som inte är tom.
 	pick : ->
 		if @currIndex != -1
-			return @boxes[@currIndex][0] + " is pending"
-		@currIndex = -1
-		for i in range @boxes.length
-			box = @boxes[i]
-			if box.length >= @maximum[box]
+			console.log @boxes[@currIndex][0] + " is pending"
+			return
+		for box,i in @boxes
+			if box.length >= @maximum[i]
 				@currIndex = i
-				return @boxes[@currIndex][0]
-		for i in range @boxes.length
-			box = @boxes[i]
+				return
+		for box,i in @boxes
 			if box.length > 0
 				@currIndex = i
-				return @boxes[@currIndex][0]
-		""
+				return
 
 	add : (card) => @boxes[0].push card
+
+	current : => # {q:"e2e4.e7e5", a:["g1f3"]}
+		if @currIndex == -1 then null else @boxes[@currIndex][0]
 
 	correct : =>
 		if @currIndex == -1 then return
@@ -53,72 +43,75 @@ export class SpacedRepetition
 		@boxes[0].push card
 		@currIndex = -1
 
-	load : () ->
+	load : () -> # from localStorage
+	save: ()-> # to localStorage
 
-	save:()->
+#sr = new SpacedRepetition()
+# lägg till fler kort och popularity
+# card1 = {q:'e2e4', a:['e7e5']}
+# card2 = {q:'e2e4.e7e5', a:['g1f3']}
+# console.log card1,card2
+# sr.add card1
+# sr.add card2
+# ass [2,0,0,0,0], sr.lengths()
+#ass card1,sr.pick()
+# ass [2,0,0,0,0], sr.lengths()
+#ass 'e2e4 is pending',sr.pick()
 
-sr = new SpacedRepetition()
-sr.add 'e2e4'
-sr.add 'e2e4.e7e5'
-ass [2,0,0,0,0], sr.lengths()
-ass 'e2e4',sr.pick()
-ass [2,0,0,0,0], sr.lengths()
-ass 'e2e4 is pending',sr.pick()
+# sr.correct()
+# ass [1,1,0,0,0], sr.lengths()
+# ass -1, sr.currIndex
+# sr.correct()
+# ass -1, sr.currIndex
+# ass [1,1,0,0,0], sr.lengths()
 
-sr.correct()
-ass [1,1,0,0,0], sr.lengths()
-ass -1, sr.currIndex
-sr.correct()
-ass -1, sr.currIndex
-ass [1,1,0,0,0], sr.lengths()
+# ass card2,sr.pick()
+# sr.correct()
+# ass [0,2,0,0,0], sr.lengths()
 
-ass "e2e4.e7e5",sr.pick()
-sr.correct()
-ass [0,2,0,0,0], sr.lengths()
+#ass card1,sr.pick()
+# sr.correct()
+# ass [0,1,1,0,0], sr.lengths()
 
-ass "e2e4",sr.pick()
-sr.correct()
-ass [0,1,1,0,0], sr.lengths()
+#ass card2,sr.pick()
+# sr.correct()
+# ass [0,0,2,0,0], sr.lengths()
 
-ass "e2e4.e7e5",sr.pick()
-sr.correct()
-ass [0,0,2,0,0], sr.lengths()
+#ass card1,sr.pick()
+# sr.correct()
+# ass [0,0,1,1,0], sr.lengths()
 
-ass "e2e4",sr.pick()
-sr.correct()
-ass [0,0,1,1,0], sr.lengths()
+#ass card2,sr.pick()
+# sr.correct()
+# ass [0,0,0,2,0], sr.lengths()
 
-ass "e2e4.e7e5",sr.pick()
-sr.correct()
-ass [0,0,0,2,0], sr.lengths()
+# ass card1,sr.pick()
+# sr.correct()
+# ass [0,0,0,1,1], sr.lengths()
 
-ass "e2e4",sr.pick()
-sr.correct()
-ass [0,0,0,1,1], sr.lengths()
+# ass card2,sr.pick()
+# sr.correct()
+# ass [0,0,0,0,2], sr.lengths()
 
-ass "e2e4.e7e5",sr.pick()
-sr.correct()
-ass [0,0,0,0,2], sr.lengths()
+# ass card1,sr.pick()
+# sr.correct()
+# ass [0,0,0,0,1], sr.lengths()
 
-ass "e2e4",sr.pick()
-sr.correct()
-ass [0,0,0,0,1], sr.lengths()
+# ass card2,sr.pick()
+# sr.wrong()
+# ass [1,0,0,0,0], sr.lengths()
 
-ass "e2e4.e7e5",sr.pick()
-sr.wrong()
-ass [1,0,0,0,0], sr.lengths()
+# for i in range 4
+# 	sr.pick()
+# 	sr.correct()
 
-for i in range 4
-	sr.pick()
-	sr.correct()
+# ass [0,0,0,0,1], sr.lengths()
+# sr.pick()
+# sr.correct()
+# ass [0,0,0,0,0], sr.lengths()
+# ass "",sr.pick()
 
-ass [0,0,0,0,1], sr.lengths()
-sr.pick()
-sr.correct()
-ass [0,0,0,0,0], sr.lengths()
-ass "",sr.pick()
-
-log sr
+#log sr
 
 # breadthFirstSearch = (tree,level,result,path) =>
 # 	for key,node of tree
