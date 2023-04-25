@@ -28,10 +28,11 @@ export class Board
 		@buttons.push new Button x3*SIZE, 9.5*SIZE, 'debug', =>
 
 	click : (i) =>
+		g = global
 		col = i %% 8
 		row = 7-i // 8
-		sq = global.chess.board()[row][col]
-		color = "wb"[global.chess.history().length %% 2] # förväntad färg på pjäsen
+		sq = g.chess.board()[row][col]
+		color = "wb"[g.chess.history().length %% 2] # förväntad färg på pjäsen
 
 		if @clickedSquares.length == 0
 			if sq != null and sq.color == color then @clickedSquares.push i
@@ -42,13 +43,13 @@ export class Board
 				@clickedSquares.push i
 				move = toObjectNotation @clickedSquares
 				uci = toUCI @clickedSquares
-				if global.chess.move move # accepera draget
-					global.stack.push global.currNode
+				if g.chess.move move # accepera draget
+					g.stack.push g.currNode
 					# console.log uci,global.currNode
-					if uci not of global.currNode
-						global.currNode[uci] = {}
-						global.count++
-					global.currNode = global.currNode[uci]
+					if uci not of g.currNode
+						g.currNode[uci] = {}
+						g.count++
+					g.currNode = g.currNode[uci]
 				@clickedSquares = []
 
 	draw : =>
@@ -63,14 +64,14 @@ export class Board
 		fill 'white'
 		textSize SIZE*0.3
 
-		push()
-		textAlign LEFT,CENTER
-		text global.name,0.05*SIZE, 0.3*SIZE
-		pop()
+		#push()
+		#textAlign LEFT,CENTER
+		#text global.name,0.05*SIZE, 0.3*SIZE
+		#pop()
 
 		for i in range 8
 			for j in range 8
-				piece = global.chess.board()[7-i][j] # {square, type, color}
+				piece = global.chess.board()[7-i][j]
 				@squares[i*8+j].draw piece, @flipped, i*8+j==@clickedSquares[0]
 
 		stroke 'black'
@@ -79,19 +80,19 @@ export class Board
 
 		@littera()
 
-		push()
-		textAlign CENTER,CENTER
+		#push()
+		#textAlign CENTER,CENTER
 
-		text global.version, 7.5*SIZE, 10*SIZE
+		#text global.version, 7.5*SIZE, 10*SIZE
 		#textAlign RIGHT,CENTER
 
-		textSize 20
-		n = global.stack.length
-		if n == 0 then score = '0'
-		if n%2 == 0 then fill 'white' else fill 'black'
-		text 1+n//2, 9.4*SIZE, 0.3*SIZE
+		# textSize 20
+		# n = global.stack.length
+		# if n == 0 then score = '0'
+		# if n%2 == 0 then fill 'white' else fill 'black'
+		# text 1+n//2, 9.4*SIZE, 0.3*SIZE
 
-		pop()
+		#pop()
 		# @showChildren()
 
 	littera : =>

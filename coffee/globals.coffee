@@ -77,35 +77,37 @@ wrongAnswer = =>
 	getNextQuestion()
 
 getNextQuestion = =>
-	sr = global.spacedRepetition
+	g = global
+	sr = g.spacedRepetition
 	if sr.boxes[0].length == 0
 		for i in range 5
-			sr.add {q:g.tree.getPath(global.questions[global.index]), a: g.tree.facit(global.questions[global.index],global.stopp)}
-			global.index++
+			sr.add {q:g.tree.getPath(g.questions[g.index]), a: g.tree.facit(g.questions[g.index],g.stopp)}
+			g.index++
 	sr.pick()
-	global.chess.reset()
+	g.chess.reset()
 	moves = sr.current().q.split '.'
 	for move in moves
-		global.chess.move {from: move.slice(0,2), to:move.slice(2,4)}
-	global.board.flipped = moves.length%2 == 1
+		g.chess.move {from: move.slice(0,2), to:move.slice(2,4)}
+	g.board.flipped = moves.length%2 == 1
 
 export clickString = (key) =>
 	param.String key
-	if key == 'flip' then global.board.flip()
+	g = global
+	if key == 'flip' then g.board.flip()
 	else if key == 'link' then window.open link(), '_blank'
-	else if key == 'up'   then global.child = (global.child-1) %% global.children.length
-	else if key == 'down' then global.child = (global.child+1) %% global.children.length
+	else if key == 'up'   then g.child = (g.child-1) %% g.children.length
+	else if key == 'down' then g.child = (g.child+1) %% g.children.length
 	else if key == 'undo' then undo()
 	else if key == 'left' then undo()
 	else if key == 'right'
-		console.log global.children,global.child
-		[value,san,uci] = global.children[global.child]
+		console.log g.children,g.child
+		[value,san,uci] = g.children[g.child]
 		console.log 'move',[value,san,uci]
-		global.chess.move san
-		global.stack.push global.currNode
-		global.currNode = global.currNode[uci]
+		g.chess.move san
+		g.stack.push g.currNode
+		g.currNode = g.currNode[uci]
 		makeChildren()
-	else if key == 'save' then download global.tree, global.name + '.json'
+	else if key == 'save' then download g.tree, g.name + '.json'
 	else if key == 'correct' then correctAnswer()
 	else if key == 'wrong' then wrongAnswer()
 	else console.log 'unknown key in clickString',key
