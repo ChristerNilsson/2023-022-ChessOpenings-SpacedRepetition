@@ -68,29 +68,6 @@ export dumpState = =>
 
 link = => 'https://lichess.org/analysis/' + global.chess.fen()
 
-correctAnswer = =>
-	global.spacedRepetition.correct()
-	getNextQuestion()
-
-wrongAnswer = =>
-	global.spacedRepetition.wrong()
-	getNextQuestion()
-
-getNextQuestion = =>
-	g = global
-	sr = g.spacedRepetition
-	if sr.boxes[0].length == 0
-		for i in range 5
-			if g.index < g.questions.length-1
-				qi = g.questions[g.index]
-				sr.add {p:g.tree.arr[qi][3], q:g.tree.getPath(qi), a: g.tree.getAnswers(qi,g.stopp)}
-				g.index++
-	sr.pick()
-	g.chess.reset()
-	moves = sr.current().q.split '.'
-	for move in moves
-		g.chess.move {from: move.slice(0,2), to:move.slice(2,4)}
-	g.board.flipped = moves.length%2 == 1
 
 export clickString = (key) =>
 	param.String key
@@ -110,6 +87,6 @@ export clickString = (key) =>
 		g.currNode = g.currNode[uci]
 		makeChildren()
 	else if key == 'save' then download g.tree, g.name + '.json'
-	else if key == 'correct' then correctAnswer()
-	else if key == 'wrong' then wrongAnswer()
+	# else if key == 'correct' then correctAnswer()
+	# else if key == 'wrong' then wrongAnswer()
 	else console.log 'unknown key in clickString',key

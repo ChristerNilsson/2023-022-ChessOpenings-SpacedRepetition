@@ -9,6 +9,7 @@ import {Tree} from '../js/tree.js'
 SIZE = global.SIZE
 released = true # prevention of touch bounce
 arr = null
+help = 'Make the most common master move.'
 
 window.preload = =>
 	#arr = loadJSON './data/arr-2014-08.json' # SIZE = 0
@@ -22,7 +23,7 @@ window.preload = =>
 		global.pics[letter] = loadImage './images/w' + letter.toLowerCase() + '.png'
 
 window.setup = =>
-	createCanvas SIZE*10.3, SIZE*11
+	createCanvas SIZE*10.5, SIZE*10
 	textAlign CENTER,CENTER
 	rectMode CENTER
 
@@ -41,15 +42,18 @@ window.setup = =>
 
 	start = new Date()
 	g.questions = g.tree.getQuestions g.start,g.stopp # array med index till stora arrayen
-	console.log 'getQuestions',g.questions, new Date()-start
-	for i in range 10
-		index = g.questions[i]
-		console.log index,g.tree.arr[index][3], g.tree.getPath index
+	#console.log 'getQuestions',g.questions, new Date()-start
+	console.log 'arr.length '+g.tree.arr.length
+	console.log 'questions.length '+g.questions.length
+
+	# for i in range 10
+	# 	index = g.questions[i]
+	# 	console.log index,g.tree.arr[index][3], g.tree.getPath index
 
 	g.index = 0
 	g.path = g.tree.getPath g.questions[g.index]
 	g.answers = g.tree.getAnswers g.questions[g.index],g.stopp
-	console.log 'getAnswers',g.answers
+	#console.log 'getAnswers',g.answers
 	for i in range 5
 		sr.add {p:g.tree.arr[g.questions[g.index]][3], q:g.tree.getPath(g.questions[g.index]), a: g.tree.getAnswers(g.questions[g.index],g.stopp)}
 		g.index++
@@ -67,11 +71,6 @@ drawSpacedRepetition = =>
 	g = global
 	sr = g.spacedRepetition
 	textAlign LEFT,CENTER
-	for box,i in sr.boxes
-		fill if i == sr.index then 'white' else 'black'
-		text box.length,40+40*i,500
-	text 'index '+sr.index,220,500
-	text 'start '+g.start,390,500
 	current = sr.current()
 	if current
 		for move,i in g.chess.history()
@@ -81,16 +80,11 @@ drawSpacedRepetition = =>
 			if i%2==0 then text i/2+1, x-20, y
 			fill if i < sr.path.split('.').length then 'lightgray' else ['white','black'][i%2]
 			text move, x,y
-		text 'questions.length '+g.questions.length, 200,520
-		# text 'popularity '+g.tree.arr[g.questions[sr.index]][3], 390,520
-		text 'popularity '+current.p, 390,520
 
-		for answer,i in current.a
-			text answer, 40 + 40*i, 540
-
-#		text current.a[0][0], 40,540
-
-	text 'arr.length '+g.tree.arr.length, 40,520
+		if global.board.clickedSquares.length == 2 # hint
+			textAlign CENTER,CENTER
+			fill ['white','black'][g.chess.history().length % 2]
+			text current.a.join(' • '), SIZE*4.5, SIZE*9.5
 
 xdraw = =>
 	background 'gray'
@@ -99,6 +93,12 @@ xdraw = =>
 	for button in global.buttons
 		button.draw()
 	drawSpacedRepetition()
+	fill "black"
+	textAlign CENTER,CENTER
+	text help, SIZE*4.5, SIZE*9.5
+
+	# for sq,i in global.board.clickedSquares # debug
+	# 	text sq,150+40*i,540
 
 # window.keyPressed = =>
 # 	if key == 'ArrowLeft' then clickString 'left'
@@ -111,6 +111,7 @@ xdraw = =>
 # 	return false
 
 window.mousePressed = =>
+	help = ''
 	if not released then return
 	released =false
 	for button in global.buttons.concat global.board.buttons

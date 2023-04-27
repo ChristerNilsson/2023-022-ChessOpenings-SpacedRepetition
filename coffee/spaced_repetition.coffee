@@ -1,5 +1,6 @@
 import _ from 'https://cdn.skypack.dev/lodash'
 import {ass,log,range} from '../js/utils.js'
+import {global} from '../js/globals.js'
 
 # Kortet är implementerat med en hash:
 # q: question. "e2e4.e7e5.g1f3"
@@ -21,6 +22,16 @@ export class SpacedRepetition
 		res = _.map @boxes, (box,i) => [box.length/@maximum[i], i]
 		res.sort()
 		@index = _.last(res)[1]
+		g = global
+		g.answers = @current().a # g.tree.getAnswers g.questions[@index],g.stopp
+		console.log ''
+		console.log @current().q
+		console.log 'popularity:', @current().p
+		console.log 'answers:',g.answers.join ' '
+		console.log 'boxes:', @lengths(), 'index:',@index
+	# for box,i in sr.boxes
+	# 	fill if i == sr.index then 'white' else 'black'
+	# 	text box.length,40+40*i,500
 
 	add : (card) => @boxes[0].push card
 
