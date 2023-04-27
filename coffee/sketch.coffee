@@ -14,7 +14,7 @@ window.preload = =>
 	#arr = loadJSON './data/arr-2014-08.json' # SIZE = 0
 	#arr = loadJSON './data/arr-2016-02.json' # SIZE = 1
 	#arr = loadJSON './data/arr-2019-06.json' # SIZE = 2
-	arr = loadJSON './data/arr.json'
+	arr = loadJSON './data/arr32.json'
 
 	for letter in "rnbqkp"
 		global.pics[letter] = loadImage './images/b' + letter + '.png'
@@ -33,23 +33,25 @@ window.setup = =>
 	g.chess = new Chess()
 	# g.tree.test()
 
-	g.spacedRepetition = new SpacedRepetition()
+	g.spacedRepetition = new SpacedRepetition 'e2e4.e7e5.g1f3.b8c6.f1c4'
 	sr = g.spacedRepetition
-	g.path1 ='e2e4.e7e5.g1f3.b8c6.f1c4' # får ej vara ''
-	g.start = g.tree.getStart g.path1
-	g.stopp = g.tree.getStopp g.path1,g.start
+	g.start = g.tree.getStart sr.path
+	g.stopp = g.tree.getStopp sr.path,g.start
 	console.log 'start',g.start, 'stopp',g.stopp
 
 	start = new Date()
 	g.questions = g.tree.getQuestions g.start,g.stopp # array med index till stora arrayen
-	console.log 'getQuestions',g.questions.length, new Date()-start
+	console.log 'getQuestions',g.questions, new Date()-start
+	for i in range 10
+		index = g.questions[i]
+		console.log index,g.tree.arr[index][3], g.tree.getPath index
 
 	g.index = 0
 	g.path = g.tree.getPath g.questions[g.index]
-	g.answers = g.tree.facit g.questions[g.index],g.stopp
-	console.log 'facit',g.answers
+	g.answers = g.tree.getAnswers g.questions[g.index],g.stopp
+	console.log 'getAnswers',g.answers
 	for i in range 5
-		sr.add {q:g.tree.getPath(g.questions[g.index]), a: g.tree.facit(g.questions[g.index],g.stopp)}
+		sr.add {p:g.tree.arr[g.questions[g.index]][3], q:g.tree.getPath(g.questions[g.index]), a: g.tree.getAnswers(g.questions[g.index],g.stopp)}
 		g.index++
 	sr.pick()
 
@@ -66,9 +68,9 @@ drawSpacedRepetition = =>
 	sr = g.spacedRepetition
 	textAlign LEFT,CENTER
 	for box,i in sr.boxes
-		fill if i == sr.currIndex then 'white' else 'black'
+		fill if i == sr.index then 'white' else 'black'
 		text box.length,40+40*i,500
-	text 'currIndex '+sr.currIndex,220,500
+	text 'index '+sr.index,220,500
 	text 'start '+g.start,390,500
 	current = sr.current()
 	if current
@@ -77,16 +79,14 @@ drawSpacedRepetition = =>
 			y = 35 + floor(i/2) * 20
 			fill 'black'
 			if i%2==0 then text i/2+1, x-20, y
-			fill if i < g.path1.split('.').length then 'lightgray' else ['white','black'][i%2]
+			fill if i < sr.path.split('.').length then 'lightgray' else ['white','black'][i%2]
 			text move, x,y
 		text 'questions.length '+g.questions.length, 200,520
-		text 'popularity '+g.tree.arr[g.questions[sr.currIndex]][3], 390,520
+		# text 'popularity '+g.tree.arr[g.questions[sr.index]][3], 390,520
+		text 'popularity '+current.p, 390,520
 
 		for answer,i in current.a
-			if i==0 then text answer[0], 40 + 40*i, 540
-			else if current.a[i][3] / current.a[i-1][3] >= 0.8
-				text answer[0], 40 + 40*i, 540
-			else break
+			text answer, 40 + 40*i, 540
 
 #		text current.a[0][0], 40,540
 

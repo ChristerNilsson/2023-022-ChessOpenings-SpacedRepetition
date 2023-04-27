@@ -1,5 +1,7 @@
 # TODO
 
+https://github.com/lichess-org/chess-openings/tree/29d9ba8986d158d6c4307eb92249da86b0e73413
+
 * Visa även ställningarnas namn t ex Ruy Lopez osv.
 * prune, skär bort små grenar från trädet. T ex med mindre än 300 partier
 
@@ -147,18 +149,18 @@ Man kan lagra en rad med cirka sex tecken, i bästa fall fem tecken.
 * level kodas med 64   (ett tecken)
 * parent och n med lista av 32. (variabelt antal tecken)
 
-Lista av 32 innebär att om versal eller 6789, kommer fler tecken.  
+Lista av 32 innebär att om versal eller 56789, kommer fler tecken.  
 T ex lagras alla tal under 32 med ett tecken.  
-	31 lagras som 5  
+	31 lagras som -  
 	32 lagras som Ab  
-1023 lagras som _5   dvs 31 + 32 x 31  
+1023 lagras som _-   dvs 31 + 32 x 31  
 1024 lagras som AAb  dvs 0 + 0 x 32 + 1 x 32 x 32  
 
 Hela arrayen lagras som en enda sträng.
 
 Exempel:
 ```
-["e2e4",0,1,123456], <=> m2 a b ABc <=> uAabABc
+["e2e4",0,1,123456], <=> m2 a b ABc <=> m2abABc
 dvs 21 tecken blir 7, en besparing med 67%
 ["e2e4",0,1,12],     <=> m2 a b m <=> uAabm
 dvs 17 tecken blir 5, en besparing med 70%
@@ -167,16 +169,16 @@ Alfabet:
 ```
 0         1         2         3
 01234567890123456789012345678901
-abcdefghijklmnopqrstuvwxyz012345  sista tecknet
-ABCDEFGHIJKLMNOPQRSTUVWXYZ6789-_  fler tecken kommer
+abcdefghijklmnopqrstuvwxyz01234-  sista tecknet
+ABCDEFGHIJKLMNOPQRSTUVWXYZ56789_  fler tecken kommer
 
 Schackbrädet:
-Y Z 6 7 8 9 - _ svart
-Q R S T U V W X
-I J K L M N O P
-A B C D E F G H
-y z 0 1 2 3 4 5
-q r s t u v w x
-i j k l m n o p
-a b c d e f g h vit
+Y  Z  5  6  7  8  9  _  svart
+Q  R  S  T  U  V  W  X
+I  J  K  L  M  N  O  P
+A  B  C  D  E  F  G  H
+y  z  0  1  2  3  4  -
+q  r  s  t  u  v  w  x
+i  j  k  l  m  n  o  p
+a  b  c  d  e  f  g  h  vit
 ```

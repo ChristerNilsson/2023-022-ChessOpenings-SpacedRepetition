@@ -29,6 +29,7 @@ export class Board
 
 	click : (i) =>
 		g = global
+		if @flipped then i = 63-i
 		col = i %% 8
 		row = 7-i // 8
 		sq = g.chess.board()[row][col]

@@ -5,4 +5,5 @@
 /data
 .idea
 *.exe
+*.tsv
 node_modules

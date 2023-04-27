@@ -1,50 +1,47 @@
 import _ from 'https://cdn.skypack.dev/lodash'
 import {ass,log,range} from '../js/utils.js'
-import {global} from '../js/globals.js'
 
+# Kortet är implementerat med en hash:
+# q: question. "e2e4.e7e5.g1f3"
+# a: answers. ["b8c6,g8f6"] Sorterade i fallande popularitetsordning.
+# p: popularity. 12345 (antal partier som spelat detta drag)
+
+# Eventuellt kan denna hash ersättas med ett enda index.
+# Övriga data kan enkelt utvinnas mha global.tree.arr
 export class SpacedRepetition
 
-	constructor : () ->
-		@maximum = [5,10,20,40,80]
+	constructor : (@path) ->
+		@maximum = [1,3,9,27,81] # cirka 1+3+9+27+81==121 kort i systemet
 		@boxes = _.map @maximum, (item) -> []
-		@currIndex = -1
+		@index = -1
 
-	lengths : -> _.map @boxes, (box) => box.length
+	lengths : => _.map @boxes, (box) => box.length
 
-	# Hämtar från första box som är överfull.
-	# Om ingen box är överfull, hämtas från första box som inte är tom.
-	pick : ->
-		if @currIndex != -1
-			console.log @boxes[@currIndex][0] + " is pending"
-			return
-		for box,i in @boxes
-			if box.length >= @maximum[i]
-				@currIndex = i
-				return
-		for box,i in @boxes
-			if box.length > 0
-				@currIndex = i
-				return
+	pick : => # Hämtar ett kort från den box som är relativt mest fylld.
+		res = _.map @boxes, (box,i) => [box.length/@maximum[i], i]
+		res.sort()
+		@index = _.last(res)[1]
 
 	add : (card) => @boxes[0].push card
 
-	current : => # {q:"e2e4.e7e5", a:["g1f3"]}
-		if @currIndex == -1 then null else @boxes[@currIndex][0]
+	current : => # returnerar nuvarande kort.
+		if @index == -1 then null else @boxes[@index][0]
 
-	correct : =>
-		if @currIndex == -1 then return
-		card = @boxes[@currIndex].shift()
-		if @currIndex < @boxes.length-1 then @boxes[@currIndex+1].push card
-		@currIndex = -1
+	correct : => # flyttar kortet till nästa box
+		if @index == -1 then return
+		card = @boxes[@index].shift()
+		if @index+1 < @boxes.length then @boxes[@index+1].push card
+		else console.log card,' is done.'
+		@index = -1
 
-	wrong : =>
-		if @currIndex == -1 then return
-		card = @boxes[@currIndex].shift()
+	wrong : => # flyttar kortet till box 0
+		if @index == -1 then return
+		card = @boxes[@index].shift()
 		@boxes[0].push card
-		@currIndex = -1
+		@index = -1
 
-	load : () -> # from localStorage
-	save: ()-> # to localStorage
+	load: => # from localStorage
+	save: => # to localStorage
 
 #sr = new SpacedRepetition()
 # lägg till fler kort och popularity
@@ -60,9 +57,9 @@ export class SpacedRepetition
 
 # sr.correct()
 # ass [1,1,0,0,0], sr.lengths()
-# ass -1, sr.currIndex
+# ass -1, sr.index
 # sr.correct()
-# ass -1, sr.currIndex
+# ass -1, sr.index
 # ass [1,1,0,0,0], sr.lengths()
 
 # ass card2,sr.pick()

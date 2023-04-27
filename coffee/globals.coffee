@@ -81,8 +81,10 @@ getNextQuestion = =>
 	sr = g.spacedRepetition
 	if sr.boxes[0].length == 0
 		for i in range 5
-			sr.add {q:g.tree.getPath(g.questions[g.index]), a: g.tree.facit(g.questions[g.index],g.stopp)}
-			g.index++
+			if g.index < g.questions.length-1
+				qi = g.questions[g.index]
+				sr.add {p:g.tree.arr[qi][3], q:g.tree.getPath(qi), a: g.tree.getAnswers(qi,g.stopp)}
+				g.index++
 	sr.pick()
 	g.chess.reset()
 	moves = sr.current().q.split '.'

@@ -8,7 +8,7 @@ from os import scandir
 # Skapar arr.json med antal level, partier samt parent
 
 CUTOFF = 5 # min antal partier för att spara ett drag
-MAX_MOVES = 20
+MAX_MOVES = 32
 
 board = None
 filename = ""
@@ -71,11 +71,16 @@ def cpu (prompt,f) :
 	start = time.time()
 	print(prompt, f(),round(time.time() - start, 3), 's')
 
-# ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_'
-# def code6464(square):
-# 	row = 'abcdefgh'.index(square[0])
-# 	col = '12345678'.index(square[1])
-# 	return ALFABET[8*row+col]
+# Kolla sorteringsordning innan detta produktionssättes
+ALFABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ01234_abcdefghijklmnopqrstuvwxyz56789-'
+#       01234567890123456789012345678901
+HIGH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ01234_'
+LOW  = 'abcdefghijklmnopqrstuvwxyz56789-'
+
+def code6464(square):
+	row = 'abcdefgh'.index(square[0])
+	col = '12345678'.index(square[1])
+	return ALFABET[row+8*col]
 # def code64(level): return ALFABET[level]
 # def triple(arr):
 # 	res = ""
@@ -100,6 +105,22 @@ def add_p(linear):
 		else: res.append([uci, level, i-index[level - 1], n])
 	return res
 
+def utf(n) :
+	res = ""
+	while True:
+		a = n % 32
+		n //= 32
+		if n == 0: return res + LOW[a]
+		else: res += HIGH[a]
+
+def compressed(arr):
+	res = []
+	for [uci,level,parent,popularity] in arr:
+		res.append(code6464(uci[0:2]) + code6464(uci[2:4]) + utf(level) + utf(parent) + utf(popularity))
+	return "".join(res)
+
+# ["d5a5",5,1,14072] =>
+
 def save(tree):
 	linear = linearize(tree)
 	parent = add_p(linear)
@@ -107,6 +128,8 @@ def save(tree):
 	# with open("data/arr-"  + filename + ".json", "w") as f: f.write(json.dumps({'arr':parent}).replace('], ["', '],\n["').replace(' ',''))
 	with open("data/tree.json", "w") as f: f.write(json.dumps(tree).replace(" ", ""))
 	with open("data/arr.json", "w") as f: f.write(json.dumps({'arr':parent}).replace('], ["', '],\n["').replace(' ',''))
+	with open("data/carr.json", "w") as f: f.write(json.dumps({'arr':compressed(parent)}))
+
 
 # with open("data/tree.json", "r") as f: tree = json.load(f)
 tree = {'n':0}
@@ -116,7 +139,7 @@ board = chess.Board()
 #                                     === sekunder ===   kB    nodes  nodes  depth depth         nodes
 #                      pgnSize  games read  prop prune tree   before  after before after nodes/s /game
 #readPGN('2014-08') #   0.1 MB    137    1   0.0   0.0    1    10737     62    298    20         0.45
-#readPGN('2016-02') #  10.0 MB  13149  107   1.1   1.4   60   914356   3918    256    28     36  0.30
+readPGN('2016-02') #  10.0 MB  13149  107   1.1   1.4   60   914356   3918    256    28     36  0.30
 #readPGN('2019-06') #  65.0 MB  76808  767  10.4  16.0  341           22536                  29
 #readPGN('2019-11') # 137.0 MB 163429 1580  14.4  18.7  694           45868                  29
 #readPGN('2020-01') # 206.0 MB 248213 1965  16.7  95.5 1037           68756                  35  0.28 # prune(5) killed 99.6% of the nodes
@@ -129,8 +152,8 @@ for entry in scandir('original'):
 res.sort()
 print(res)
 
-for name in res: #[0:10]:
-	readPGN(name)
+#for name in res[:10]:
+#	readPGN(name)
 
 # totalt 3.05 GB cirka 18MB 10h
 
