@@ -15,7 +15,7 @@ export class SpacedRepetition
 
 	constructor : (@opening) ->
 		@maximum = [4,16,64] #_.map range(N),(i) => N**i # cirka 1+3+9+27+81==121 kort i systemet
-		@reset()
+		#@reset()
 		@load()
 
 	reset : =>
@@ -76,13 +76,15 @@ export class SpacedRepetition
 		@save()
 
 	load: => # from localStorage
-		data = JSON.parse localStorage[@opening]
+		data = localStorage[@opening]
 		if data
+			data = JSON.parse data
 			@boxes = data.boxes
 			@bindex = data.bindex
 			@qindex = data.qindex
 			console.log 'load:',@opening, @lengths() #JSON.stringify {boxes:@boxes,bindex:@bindex,qindex:global.qindex}
 		else
+			@reset()
 			console.log 'load: no data'
 	save: => # to localStorage
 		localStorage[@opening] = JSON.stringify {boxes:@boxes,bindex:@bindex,qindex:@qindex}
