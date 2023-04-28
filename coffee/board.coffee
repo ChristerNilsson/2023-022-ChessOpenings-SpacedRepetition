@@ -12,10 +12,10 @@ getNextQuestion = =>
 	sr = g.spacedRepetition
 	if sr.boxes[0].length == 0
 		for i in range 5
-			if g.index < g.questions.length-1
-				qi = g.questions[g.index]
-				sr.add {p:g.tree.arr[qi][3], q:g.tree.getPath(qi), a: g.tree.getAnswers(qi,g.stopp)}
-				g.index++
+			if sr.qindex < sr.questions.length-1
+				qi = sr.questions[sr.qindex]
+				sr.add {p:g.tree.arr[qi][3], q:g.tree.getPath(qi), a: g.tree.getAnswers(qi,sr.stopp)}
+				sr.qindex++
 	sr.pick()
 	g.chess.reset()
 	moves = sr.current().q.split '.'
@@ -52,7 +52,7 @@ export class Board
 			else # kontrollera draget
 				@clickedSquares.push i
 				uci = toUCI @clickedSquares
-				if uci in g.answers
+				if uci in sr.answers
 					sr.correct()
 					getNextQuestion()
 					@clickedSquares = []
@@ -61,7 +61,7 @@ export class Board
 		else if csl == 3
 			@clickedSquares.push i
 			uci = toUCI @clickedSquares.slice 2,4
-			if uci in g.answers
+			if uci in sr.answers
 				sr.wrong()
 				getNextQuestion()
 				@clickedSquares = []

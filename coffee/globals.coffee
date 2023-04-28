@@ -4,22 +4,32 @@ import _ from 'https://cdn.skypack.dev/lodash'
 
 export global = {
 
+	tree:null,
+	board:null,
+	chess:null,
+	spacedRepetition : null,
+
+	#start : -1,
+	#stopp : -1,
+
+	#questions : [],
+	#qindex : -1,
+
 	#name : 'bishop',
 	name : 'tree',
-	arr : [],
+	#arr : [],
 
 	version:'ver: B',
-	board:null,
-	child:0, # move under consideration
-	children: [], # sorted list of [value,san,uci]
-	SIZE:50, # of square
-	pics:{}, # 12 pjäser
+	#child : 0, # move under consideration
+	#children : [], # sorted list of [value,san,uci]
+	SIZE : 50, # of square
+	pics : {}, # 12 pjäser
 	# data:null,
-	buttons:[],
-	database: {}, # fen => value
+	buttons : [],
+	#database : {}, # fen => value
 	#currNode:null, # pekar in i ett träd
 	#count: 0, # räknar antal nya drag i trädet
-	stack:[] # innehåller aktuell gren
+	#stack : [] # innehåller aktuell gren
 }
 
 export coords = (uci) =>
@@ -55,14 +65,14 @@ export empty = (n) =>
 	param.String (1+n//8).toString()
 
 undo = => 
-	if global.stack.length == 0 then return
-	global.chess.undo()
-	global.currNode = global.stack.pop()
-	# makeChildren()
+	# if global.stack.length == 0 then return
+	# global.chess.undo()
+	# global.currNode = global.stack.pop()
+	# # makeChildren()
 
 export dumpState = =>
 	console.log 'STATE ########'
-	console.log '  stack',global.stack
+	# console.log '  stack',global.stack
 	console.log '  currNode',global.currNode
 	console.log '  history',global.chess.history()
 
@@ -74,18 +84,18 @@ export clickString = (key) =>
 	g = global
 	if key == 'flip' then g.board.flip()
 	else if key == 'link' then window.open link(), '_blank'
-	else if key == 'up'   then g.child = (g.child-1) %% g.children.length
-	else if key == 'down' then g.child = (g.child+1) %% g.children.length
+	# else if key == 'up'   then g.child = (g.child-1) %% g.children.length
+	# else if key == 'down' then g.child = (g.child+1) %% g.children.length
 	else if key == 'undo' then undo()
 	else if key == 'left' then undo()
-	else if key == 'right'
-		console.log g.children,g.child
-		[value,san,uci] = g.children[g.child]
-		console.log 'move',[value,san,uci]
-		g.chess.move san
-		g.stack.push g.currNode
-		g.currNode = g.currNode[uci]
-		makeChildren()
+	# else if key == 'right'
+		# console.log g.children,g.child
+		# [value,san,uci] = g.children[g.child]
+		# console.log 'move',[value,san,uci]
+		# g.chess.move san
+		# g.stack.push g.currNode
+		# g.currNode = g.currNode[uci]
+		# makeChildren()
 	else if key == 'save' then download g.tree, g.name + '.json'
 	# else if key == 'correct' then correctAnswer()
 	# else if key == 'wrong' then wrongAnswer()

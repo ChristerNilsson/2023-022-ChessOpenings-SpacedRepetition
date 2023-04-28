@@ -9,50 +9,84 @@ import {global} from '../js/globals.js'
 
 # Eventuellt kan denna hash ersättas med ett enda index.
 # Övriga data kan enkelt utvinnas mha global.tree.arr
+
+N = 3 # antal boxar
 export class SpacedRepetition
 
-	constructor : (@path) ->
-		@maximum = [1,3,9,27,81] # cirka 1+3+9+27+81==121 kort i systemet
+	constructor : (@opening) ->
+		@maximum = [4,16,64] #_.map range(N),(i) => N**i # cirka 1+3+9+27+81==121 kort i systemet
+		@reset()
+		@load()
+
+	reset : =>
+		g = global
 		@boxes = _.map @maximum, (item) -> []
-		@index = -1
+		@bindex = -1
+		@qindex = 0
+
+		@start = g.tree.getStart @opening
+		@stopp = g.tree.getStopp @opening,@start
+		console.log 'start',@start, 'stopp',@stopp
+
+		@questions = g.tree.getQuestions @start,@stopp # array med index till stora arrayen
+		#console.log 'getQuestions',g.questions, new Date()-start
+		console.log 'arr.length '+g.tree.arr.length
+		console.log 'questions.length '+@questions.length
+
+		@qindex = 0
+		@path = g.tree.getPath @questions[@qindex]
+		@answers = g.tree.getAnswers @questions[@qindex],@stopp
+		#console.log 'getAnswers',g.answers
+		for i in range 5
+			@add {p:g.tree.arr[@questions[@qindex]][3], q:g.tree.getPath(@questions[@qindex]), a: g.tree.getAnswers(@questions[@qindex],@stopp)}
+			@qindex++
 
 	lengths : => _.map @boxes, (box) => box.length
 
 	pick : => # Hämtar ett kort från den box som är relativt mest fylld.
 		res = _.map @boxes, (box,i) => [box.length/@maximum[i], i]
 		res.sort()
-		@index = _.last(res)[1]
+		@bindex = _.last(res)[1]
 		g = global
-		g.answers = @current().a # g.tree.getAnswers g.questions[@index],g.stopp
+		@answers = @current().a
 		console.log ''
 		console.log @current().q
 		console.log 'popularity:', @current().p
-		console.log 'answers:',g.answers.join ' '
-		console.log 'boxes:', @lengths(), 'index:',@index
-	# for box,i in sr.boxes
-	# 	fill if i == sr.index then 'white' else 'black'
-	# 	text box.length,40+40*i,500
+		console.log 'answers:',@answers.join ' '
+		console.log 'boxes:', @lengths(), 'bindex:',@bindex
 
 	add : (card) => @boxes[0].push card
 
 	current : => # returnerar nuvarande kort.
-		if @index == -1 then null else @boxes[@index][0]
+		if @bindex == -1 then null else @boxes[@bindex][0]
 
 	correct : => # flyttar kortet till nästa box
-		if @index == -1 then return
-		card = @boxes[@index].shift()
-		if @index+1 < @boxes.length then @boxes[@index+1].push card
+		if @bindex == -1 then return
+		card = @boxes[@bindex].shift()
+		if @bindex+1 < @boxes.length then @boxes[@bindex+1].push card
 		else console.log card,' is done.'
-		@index = -1
+		@bindex = -1
+		@save()
 
 	wrong : => # flyttar kortet till box 0
-		if @index == -1 then return
-		card = @boxes[@index].shift()
+		if @bindex == -1 then return
+		card = @boxes[@bindex].shift()
 		@boxes[0].push card
-		@index = -1
+		@bindex = -1
+		@save()
 
 	load: => # from localStorage
+		data = JSON.parse localStorage[@opening]
+		if data
+			@boxes = data.boxes
+			@bindex = data.bindex
+			@qindex = data.qindex
+			console.log 'load:',@opening, @lengths() #JSON.stringify {boxes:@boxes,bindex:@bindex,qindex:global.qindex}
+		else
+			console.log 'load: no data'
 	save: => # to localStorage
+		localStorage[@opening] = JSON.stringify {boxes:@boxes,bindex:@bindex,qindex:@qindex}
+		console.log 'save:',@opening,@lengths() #JSON.stringify {boxes:@boxes,bindex:@bindex,qindex:@qindex}
 
 #sr = new SpacedRepetition()
 # lägg till fler kort och popularity

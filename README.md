@@ -17,8 +17,8 @@ För att en ställning ska avföras, måste man angivit rätt drag, fem gånger 
 * Välj ut lådan med högst relativ fyllnadsgrad.
 * Kapaciteterna är [1,3,9,27,81] kort för de olika lådorna.
 * Lådorna fungerar som köer.
-* Nya kort läggs in i slutet av lådan.
-* Kort plockas ut från början av lådan.
+	* Nya kort läggs in i slutet av lådan.
+	* Kort plockas ut från början av lådan.
 ```
 Låda 0: d2d4.d7d5 e2e4.e7e5 d2d4.d7d5.c2c4 g2g3 (5 kort)
 Låda 1: a2a4 b2b4 c2c4 d2d4 e2e4 f2f4 g2g4 h2h4 g1f3 b1c3 e2e3 (11 kort)

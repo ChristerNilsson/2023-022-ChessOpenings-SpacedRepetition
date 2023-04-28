@@ -36,27 +36,7 @@ window.setup = =>
 
 	g.spacedRepetition = new SpacedRepetition 'e2e4.e7e5.g1f3.b8c6.f1c4'
 	sr = g.spacedRepetition
-	g.start = g.tree.getStart sr.path
-	g.stopp = g.tree.getStopp sr.path,g.start
-	console.log 'start',g.start, 'stopp',g.stopp
 
-	start = new Date()
-	g.questions = g.tree.getQuestions g.start,g.stopp # array med index till stora arrayen
-	#console.log 'getQuestions',g.questions, new Date()-start
-	console.log 'arr.length '+g.tree.arr.length
-	console.log 'questions.length '+g.questions.length
-
-	# for i in range 10
-	# 	index = g.questions[i]
-	# 	console.log index,g.tree.arr[index][3], g.tree.getPath index
-
-	g.index = 0
-	g.path = g.tree.getPath g.questions[g.index]
-	g.answers = g.tree.getAnswers g.questions[g.index],g.stopp
-	#console.log 'getAnswers',g.answers
-	for i in range 5
-		sr.add {p:g.tree.arr[g.questions[g.index]][3], q:g.tree.getPath(g.questions[g.index]), a: g.tree.getAnswers(g.questions[g.index],g.stopp)}
-		g.index++
 	sr.pick()
 
 	g.chess.reset()
